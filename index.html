@@ -99,6 +99,81 @@
       animation: grain 10s steps(10) infinite;
     }
 
+    .stars {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.85;
+      filter: blur(0.2px);
+      mix-blend-mode: screen;
+    }
+
+    .warp {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 50;
+      backdrop-filter: blur(0px) saturate(100%);
+      -webkit-backdrop-filter: blur(0px) saturate(100%);
+      background:
+        radial-gradient(circle at 50% 40%, rgba(255,255,255,0.12), transparent 55%),
+        radial-gradient(circle at 20% 70%, rgba(102,231,255,0.12), transparent 45%),
+        radial-gradient(circle at 80% 25%, rgba(187,168,255,0.10), transparent 48%);
+      transform: translateZ(0);
+    }
+
+    .warp::after {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        repeating-linear-gradient(
+          115deg,
+          rgba(255,255,255,0.00) 0%,
+          rgba(255,255,255,0.06) 6%,
+          rgba(255,255,255,0.00) 12%
+        );
+      opacity: 0.0;
+      transform: translate3d(-6%, 0, 0) rotate(-6deg);
+      filter: blur(1px);
+    }
+
+    body.is-warping .warp {
+      opacity: 1;
+      animation: warpOut 260ms var(--ease-out) forwards;
+    }
+
+    body.is-warping .warp::after {
+      opacity: 1;
+      animation: warpStreak 260ms var(--ease-out) forwards;
+    }
+
+    body.is-arriving .warp {
+      opacity: 1;
+      animation: warpIn 420ms var(--ease-out) forwards;
+    }
+
+    @keyframes warpOut {
+      0% { opacity: 0; backdrop-filter: blur(0px) saturate(100%); transform: scale(1); }
+      45% { opacity: 1; backdrop-filter: blur(10px) saturate(165%); }
+      100% { opacity: 0; backdrop-filter: blur(18px) saturate(175%); transform: scale(1.02); }
+    }
+
+    @keyframes warpIn {
+      0% { opacity: 1; backdrop-filter: blur(18px) saturate(175%); transform: scale(1.02); }
+      55% { opacity: 0.55; backdrop-filter: blur(10px) saturate(150%); }
+      100% { opacity: 0; backdrop-filter: blur(0px) saturate(100%); transform: scale(1); }
+    }
+
+    @keyframes warpStreak {
+      0% { opacity: 0; transform: translate3d(-10%, 0, 0) rotate(-6deg); }
+      35% { opacity: 0.75; }
+      100% { opacity: 0; transform: translate3d(10%, -1%, 0) rotate(6deg); }
+    }
+
     .shell { position: relative; width: 100%; max-width: 430px; z-index: 1; margin: 0 auto; }
 
     .frame {
@@ -123,6 +198,25 @@
       opacity: 0;
       animation: riseIn 620ms var(--ease-out) 80ms forwards;
     }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 20% 24%, rgba(102, 231, 255, 0.16), transparent 46%),
+        radial-gradient(circle at 78% 28%, rgba(187, 168, 255, 0.14), transparent 48%),
+        radial-gradient(circle at 40% 82%, rgba(154, 248, 205, 0.10), transparent 52%);
+      filter: blur(18px) saturate(140%);
+      opacity: 0;
+      transform: translate3d(-2%, 0, 0) rotate(-6deg);
+      animation: nebula 9.5s var(--ease-out) 520ms infinite alternate;
+    }
+
+    /* Keep all content above visual layers */
+    .card > * { position: relative; z-index: 1; }
 
     .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
 
@@ -172,6 +266,22 @@
       background: rgba(0, 0, 0, 0.18);
       border: 1px solid rgba(255, 255, 255, 0.08);
       font-size: 0.95rem;
+    }
+
+    body.is-warping a.tab.is-tapped {
+      transform: translateY(-1px) scale(0.985);
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.16);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 12px 30px rgba(102, 231, 255, 0.10);
+      filter: saturate(1.06);
+    }
+
+    body.is-warping a.tab.is-tapped .tab-icon {
+      border-color: rgba(102, 231, 255, 0.22);
+      background: rgba(102, 231, 255, 0.10);
+      box-shadow: 0 12px 26px rgba(102, 231, 255, 0.10);
     }
 
     .mini {
@@ -352,11 +462,40 @@
       100% { transform: translateY(0) scale(1); opacity: 1; }
     }
     @keyframes grain { 0% { transform: translate3d(-4%, -6%, 0) rotate(8deg); } 100% { transform: translate3d(6%, 8%, 0) rotate(8deg); } }
+    @keyframes nebula {
+      0% { opacity: 0.00; transform: translate3d(-2%, 0, 0) rotate(-6deg); }
+      35% { opacity: 0.55; }
+      100% { opacity: 0.85; transform: translate3d(2%, -1%, 0) rotate(6deg); }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .ambient::before, .ambient::after, .grain { animation: none !important; }
       .card, .status-ring { animation: none !important; transform: none !important; opacity: 1 !important; }
       .button { transition: none !important; }
+      .stars { display: none !important; }
+      .card::before { animation: none !important; opacity: 0.40; }
+      .warp { display: none !important; }
+    }
+
+    .spark {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.18),
+        0 10px 22px rgba(102, 231, 255, 0.18);
+      transform: translate3d(0,0,0) scale(1);
+      opacity: 0;
+      animation: spark 520ms var(--ease-out) forwards;
+    }
+
+    @keyframes spark {
+      0% { opacity: 0; transform: translate3d(var(--sx), var(--sy), 0) scale(0.6); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: translate3d(calc(var(--sx) + var(--dx)), calc(var(--sy) + var(--dy)), 0) scale(0.85); }
     }
 
     @media (max-width: 480px) {
@@ -370,6 +509,8 @@
 <body>
   <div class="ambient"></div>
   <div class="grain" aria-hidden="true"></div>
+  <canvas class="stars" id="stars" aria-hidden="true"></canvas>
+  <div class="warp" aria-hidden="true"></div>
 
   <main class="shell">
     <section class="frame">
@@ -465,12 +606,153 @@
 
   <script>
     (function () {
+      // Starfield (purely visual, never intercepts taps)
+      const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const canvas = document.getElementById("stars");
+      if (canvas && !prefersReduced) {
+        const ctx = canvas.getContext("2d", { alpha: true });
+        const DPR = Math.min(2, window.devicePixelRatio || 1);
+        let w = 0, h = 0, raf = 0;
+        const stars = [];
+        const layers = [
+          { count: 42, speed: 0.08, radius: [0.6, 1.2], alpha: [0.10, 0.22] },
+          { count: 28, speed: 0.14, radius: [0.9, 1.8], alpha: [0.14, 0.30] },
+          { count: 12, speed: 0.22, radius: [1.4, 2.6], alpha: [0.18, 0.42] },
+        ];
+
+        const rand = (a, b) => a + Math.random() * (b - a);
+        const resize = () => {
+          w = Math.floor(window.innerWidth * DPR);
+          h = Math.floor(window.innerHeight * DPR);
+          canvas.width = w;
+          canvas.height = h;
+          canvas.style.width = "100%";
+          canvas.style.height = "100%";
+        };
+
+        const seed = () => {
+          stars.length = 0;
+          for (let li = 0; li < layers.length; li++) {
+            const L = layers[li];
+            for (let i = 0; i < L.count; i++) {
+              stars.push({
+                layer: li,
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: rand(L.radius[0], L.radius[1]) * DPR,
+                a: rand(L.alpha[0], L.alpha[1]),
+                tw: rand(0.004, 0.012) * (li + 1),
+                p: Math.random() * Math.PI * 2,
+              });
+            }
+          }
+        };
+
+        let vx = 0, vy = 0;
+        const onMove = (e) => {
+          const cx = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX) ?? (window.innerWidth / 2);
+          const cy = (e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY) ?? (window.innerHeight / 2);
+          const nx = (cx / window.innerWidth) - 0.5;
+          const ny = (cy / window.innerHeight) - 0.5;
+          vx = nx * 0.9;
+          vy = ny * 0.9;
+        };
+
+        window.addEventListener("pointermove", onMove, { passive: true });
+        window.addEventListener("touchmove", onMove, { passive: true });
+
+        const draw = () => {
+          ctx.clearRect(0, 0, w, h);
+
+          // vignette-ish glow
+          const g = ctx.createRadialGradient(w * 0.5, h * 0.2, 0, w * 0.5, h * 0.2, Math.max(w, h) * 0.75);
+          g.addColorStop(0, "rgba(102,231,255,0.06)");
+          g.addColorStop(0.45, "rgba(187,168,255,0.03)");
+          g.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, w, h);
+
+          for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
+            const L = layers[s.layer];
+            s.p += s.tw;
+            const twinkle = 0.70 + Math.sin(s.p) * 0.30;
+            const dx = vx * (6 + s.layer * 6) * DPR;
+            const dy = vy * (6 + s.layer * 6) * DPR;
+
+            // slow drift upward
+            s.y -= L.speed * DPR;
+            if (s.y < -10) { s.y = h + 10; s.x = Math.random() * w; }
+
+            ctx.beginPath();
+            ctx.arc(s.x + dx, s.y + dy, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255,255,255,${(s.a * twinkle).toFixed(3)})`;
+            ctx.fill();
+
+            // occasional soft bloom on larger stars
+            if (s.layer === 2) {
+              ctx.beginPath();
+              ctx.arc(s.x + dx, s.y + dy, s.r * 3.2, 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(102,231,255,${(0.045 * twinkle).toFixed(3)})`;
+              ctx.fill();
+            }
+          }
+
+          raf = window.requestAnimationFrame(draw);
+        };
+
+        const onResize = () => { resize(); seed(); };
+        window.addEventListener("resize", onResize, { passive: true });
+        resize();
+        seed();
+        draw();
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            if (raf) window.cancelAnimationFrame(raf);
+          } else {
+            draw();
+          }
+        });
+      }
+
       const storageKey = "cusp.reviewLink";
       const reviewBtn = document.getElementById("reviewBtn");
       const reviewLink = document.getElementById("reviewLink");
       const useTestLink = document.getElementById("useTestLink");
       const clearLink = document.getElementById("clearLink");
       const TEST_HREF = "https://www.pursuit.org/ai-native-program";
+
+      // Warp transition between tabs/pages (no impact on click targets)
+      const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const NAV_KEY = "cusp.navWarp";
+      try {
+        if (!reduced && sessionStorage.getItem(NAV_KEY) === "1") {
+          sessionStorage.removeItem(NAV_KEY);
+          document.body.classList.add("is-arriving");
+          window.setTimeout(() => document.body.classList.remove("is-arriving"), 520);
+        }
+      } catch {}
+
+      if (!reduced) {
+        const bindWarp = (a) => {
+          if (!a || !a.href) return;
+          a.addEventListener("click", (e) => {
+            const url = a.getAttribute("href");
+            if (!url || url.startsWith("#")) return;
+            // Only intercept same-tab navigations
+            if (a.target === "_blank") return;
+            e.preventDefault();
+            document.querySelectorAll("a.tab.is-tapped").forEach((n) => n.classList.remove("is-tapped"));
+            a.classList.add("is-tapped");
+            document.body.classList.add("is-warping");
+            try { sessionStorage.setItem(NAV_KEY, "1"); } catch {}
+            window.setTimeout(() => { window.location.href = url; }, 210);
+          });
+        };
+
+        document.querySelectorAll("a.tab").forEach(bindWarp);
+      }
 
       const buttons = document.querySelectorAll(".button");
       for (const btn of buttons) {
@@ -482,7 +764,37 @@
           btn.style.setProperty("--y", y + "px");
         };
 
-        btn.addEventListener("pointerdown", (e) => { setXY(e); btn.classList.add("is-pressed"); }, { passive: true });
+        const spark = (e) => {
+          // Tiny “next-gen” shimmer that never blocks clicks (removed quickly).
+          const r = btn.getBoundingClientRect();
+          const x = (e.clientX ?? (e.touches && e.touches[0] && e.touches[0].clientX) ?? (r.left + r.width / 2)) - r.left;
+          const y = (e.clientY ?? (e.touches && e.touches[0] && e.touches[0].clientY) ?? (r.top + r.height / 2)) - r.top;
+
+          const count = 6;
+          for (let i = 0; i < count; i++) {
+            const s = document.createElement("span");
+            s.className = "spark";
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 18 + Math.random() * 26;
+            const dx = Math.cos(angle) * dist;
+            const dy = Math.sin(angle) * dist;
+            s.style.left = x + "px";
+            s.style.top = y + "px";
+            s.style.setProperty("--sx", (Math.random() * 8 - 4) + "px");
+            s.style.setProperty("--sy", (Math.random() * 8 - 4) + "px");
+            s.style.setProperty("--dx", dx.toFixed(1) + "px");
+            s.style.setProperty("--dy", dy.toFixed(1) + "px");
+            s.style.animationDelay = (Math.random() * 60) + "ms";
+            btn.appendChild(s);
+            s.addEventListener("animationend", () => s.remove(), { once: true });
+          }
+        };
+
+        btn.addEventListener("pointerdown", (e) => {
+          setXY(e);
+          btn.classList.add("is-pressed");
+          spark(e);
+        }, { passive: true });
         btn.addEventListener("pointermove", (e) => { if (btn.classList.contains("is-pressed")) setXY(e); }, { passive: true });
 
         const release = () => btn.classList.remove("is-pressed");
