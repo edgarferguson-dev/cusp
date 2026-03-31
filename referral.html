@@ -531,6 +531,10 @@
             <span class="button-arrow">→</span>
           </button>
         </div>
+
+        <div style="margin-top: 14px; font-size: 0.78rem; color: rgba(255,255,255,0.52);">
+          Build <span id="buildId">build</span>
+        </div>
       </div>
     </section>
   </main>
@@ -539,6 +543,9 @@
 
   <script>
     (function () {
+      // Build marker (helps confirm Pages cache)
+      try { document.getElementById("buildId").textContent = "3e0ba9a"; } catch {}
+
       // Starfield (purely visual, never intercepts taps)
       const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const canvas = document.getElementById("stars");

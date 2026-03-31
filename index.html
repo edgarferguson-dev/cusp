@@ -598,7 +598,7 @@
 
         <div class="footer">
           <span>Built for trust, speed, and simplicity.</span>
-          <span><strong>CUSP</strong> customer link</span>
+          <span><strong>CUSP</strong> customer link · <span id="buildId">build</span></span>
         </div>
       </div>
     </section>
@@ -606,6 +606,9 @@
 
   <script>
     (function () {
+      // Build marker (helps confirm Pages cache)
+      try { document.getElementById("buildId").textContent = "3e0ba9a"; } catch {}
+
       // Starfield (purely visual, never intercepts taps)
       const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const canvas = document.getElementById("stars");
