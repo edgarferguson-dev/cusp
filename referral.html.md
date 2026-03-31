@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>CUSP | Rewards</title>
+  <meta name="theme-color" content="#070A12" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-0: #05060b;
+      --bg-1: #060812;
+      --bg-2: #0a0f21;
+      --text: rgba(255, 255, 255, 0.94);
+      --muted: rgba(255, 255, 255, 0.70);
+      --soft: rgba(255, 255, 255, 0.52);
+      --hairline: rgba(255, 255, 255, 0.10);
+      --glass: rgba(255, 255, 255, 0.075);
+      --glass-2: rgba(255, 255, 255, 0.045);
+      --accent-1: #9AF8CD;
+      --accent-2: #66E7FF;
+      --accent-3: #BBA8FF;
+      --ink: #05141b;
+      --shadow: 0 26px 90px rgba(0, 0, 0, 0.52);
+      --shadow-soft: 0 14px 44px rgba(0, 0, 0, 0.32);
+      --ease-out: cubic-bezier(.16, 1, .3, 1);
+      --ease-spring: cubic-bezier(.2, .9, .2, 1.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 16%, rgba(102, 231, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 88% 14%, rgba(187, 168, 255, 0.16), transparent 26%),
+        radial-gradient(circle at 50% 110%, rgba(154, 248, 205, 0.12), transparent 30%),
+        linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 52%, var(--bg-0) 100%);
+    }
+
+    body {
+      padding: calc(18px + env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom));
+      overflow-x: hidden;
+    }
+
+    .ambient {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.95;
+      filter: blur(40px);
+    }
+
+    .ambient::before,
+    .ambient::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+    }
+
+    .ambient::before {
+      width: 280px;
+      height: 280px;
+      top: 8%;
+      left: -40px;
+      background: rgba(98, 232, 255, 0.16);
+      animation: driftOne 12s ease-in-out infinite alternate;
+    }
+
+    .ambient::after {
+      width: 260px;
+      height: 260px;
+      right: -30px;
+      bottom: 10%;
+      background: rgba(183, 166, 255, 0.14);
+      animation: driftTwo 14s ease-in-out infinite alternate;
+    }
+
+    .grain {
+      position: fixed;
+      inset: -40%;
+      pointer-events: none;
+      opacity: 0.10;
+      mix-blend-mode: overlay;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+      transform: rotate(8deg);
+      animation: grain 10s steps(10) infinite;
+    }
+
+    .shell {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      z-index: 1;
+      margin: 0 auto;
+    }
+
+    .frame {
+      position: relative;
+      border-radius: 44px;
+      padding: 1px;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+      box-shadow: var(--shadow);
+    }
+
+    .card {
+      position: relative;
+      border-radius: 43px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045));
+      backdrop-filter: blur(26px) saturate(160%);
+      -webkit-backdrop-filter: blur(26px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.065);
+      padding: 22px 18px 18px;
+      box-shadow: var(--shadow-soft);
+      transform: translateY(10px);
+      opacity: 0;
+      animation: riseIn 620ms var(--ease-out) 80ms forwards;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      color: rgba(255, 255, 255, 0.86);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-decoration: none;
+      backdrop-filter: blur(12px);
+    }
+
+    .nav:active { transform: scale(0.98); }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      position: relative;
+      background: linear-gradient(135deg, rgba(154, 248, 205, 0.95), rgba(102, 231, 255, 0.92));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 10px 30px rgba(98, 232, 255, 0.20);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .logo-mark::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(4, 19, 26, 0.28);
+    }
+
+    .logo-mark svg {
+      width: 28px;
+      height: 28px;
+      position: relative;
+      filter: drop-shadow(0 10px 20px rgba(4, 19, 26, 0.18));
+    }
+
+    .brand {
+      line-height: 1.05;
+    }
+
+    .brand-title {
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .brand-sub {
+      margin-top: 4px;
+      font-size: 0.72rem;
+      color: var(--soft);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 14px 0 10px;
+      font-size: clamp(1.65rem, 6vw, 2.1rem);
+      line-height: 1.06;
+      letter-spacing: -0.04em;
+      font-weight: 850;
+    }
+
+    .description {
+      margin: 0 0 16px;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 44ch;
+    }
+
+    .panel {
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 14px 14px 12px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .panel-title {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      color: var(--soft);
+    }
+
+    .panel-value {
+      font-size: 0.9rem;
+      font-weight: 750;
+      color: rgba(255, 255, 255, 0.90);
+      letter-spacing: -0.02em;
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .field {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .input {
+      width: 100%;
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(0, 0, 0, 0.18);
+      color: rgba(255, 255, 255, 0.92);
+      border-radius: 16px;
+      padding: 14px 14px;
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+      outline: none;
+      transition: border-color 220ms var(--ease-out), box-shadow 220ms var(--ease-out), transform 220ms var(--ease-out);
+    }
+
+    .input:focus {
+      border-color: rgba(102, 231, 255, 0.35);
+      box-shadow: 0 0 0 6px rgba(102, 231, 255, 0.10);
+      transform: translateY(-1px);
+    }
+
+    .hint {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.62);
+      line-height: 1.45;
+    }
+
+    .reward {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .reward-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat {
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 12px;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--soft);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.05rem;
+      font-weight: 820;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(190, 249, 229, 0.98), rgba(192, 244, 255, 0.98));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .button {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+      border: 0;
+      text-decoration: none;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 20px;
+      padding: 16px 18px;
+      font-size: 1rem;
+      font-weight: 850;
+      letter-spacing: -0.02em;
+      box-shadow: 0 18px 38px rgba(98, 232, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out), filter 220ms var(--ease-out);
+    }
+
+    .button:active { transform: translateY(0) scale(0.986); }
+    .button.is-pressed { transform: translateY(0) scale(0.986); filter: saturate(1.03); }
+
+    .button::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      pointer-events: none;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.32), transparent 42%);
+      opacity: 0;
+      transition: opacity 260ms var(--ease-out);
+    }
+
+    .button.is-pressed::after { opacity: 1; }
+
+    .button-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .button-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(4, 19, 26, 0.10);
+      font-size: 1rem;
+    }
+
+    .button-arrow {
+      font-size: 1.15rem;
+      opacity: 0.72;
+    }
+
+    .ghost {
+      color: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: none;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      color: rgba(255, 255, 255, 0.92);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 240ms var(--ease-out), transform 240ms var(--ease-out);
+      transform-origin: 50% 100%;
+    }
+
+    .toast.is-on {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-6px);
+    }
+
+    @keyframes driftOne {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to { transform: translate3d(28px, 18px, 0) scale(1.08); }
+    }
+
+    @keyframes driftTwo {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to { transform: translate3d(-20px, -24px, 0) scale(1.06); }
+    }
+
+    @keyframes riseIn {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes grain {
+      0% { transform: translate3d(-4%, -6%, 0) rotate(8deg); }
+      100% { transform: translate3d(6%, 8%, 0) rotate(8deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ambient::before, .ambient::after, .grain { animation: none !important; }
+      .card { animation: none !important; transform: none !important; opacity: 1 !important; }
+      .button, .input { transition: none !important; }
+      .toast { transition: none !important; }
+    }
+
+    @media (max-width: 480px) {
+      body { padding: calc(16px + env(safe-area-inset-top)) 16px calc(26px + env(safe-area-inset-bottom)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <main class="shell">
+    <section class="frame">
+      <div class="card">
+        <div class="topbar">
+          <a class="nav" href="./index.html.md" aria-label="Back to reviews">
+            <span aria-hidden="true">←</span> Back
+          </a>
+
+          <div class="logo-wrap" aria-label="CUSP">
+            <div class="logo-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18.9 7.8c-1.2-2.6-3.8-4-6.9-4C7.6 3.8 4.3 7 4.3 12s3.3 8.2 7.7 8.2c2.7 0 4.8-1.1 6.2-3.1" stroke="rgba(4,19,26,0.82)" stroke-width="2.2" stroke-linecap="round"/>
+                <path d="M19.7 12h-7.2" stroke="rgba(4,19,26,0.82)" stroke-width="2.2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="brand">
+              <div class="brand-title">CUSP</div>
+              <div class="brand-sub">Rewards</div>
+            </div>
+          </div>
+        </div>
+
+        <h1>Invite a friend. Unlock rewards.</h1>
+        <p class="description">
+          Share your link. When they leave a review, you earn credits automatically on the next visit — no login, no friction.
+        </p>
+
+        <section class="panel" aria-label="Referral link">
+          <div class="panel-head">
+            <div class="panel-title">Your referral link</div>
+            <div class="panel-value" id="shortCode">CUSP‑7K2A</div>
+          </div>
+          <div class="divider"></div>
+          <div class="field">
+            <input class="input" id="refLink" inputmode="url" autocomplete="off" spellcheck="false"
+              value="https://cusp.example/ref/CUSP-7K2A" aria-label="Referral link" />
+            <div class="hint">Tip: edit the link text above to match your real domain when you’re ready.</div>
+          </div>
+        </section>
+
+        <section class="panel" style="margin-top: 12px;" aria-label="Rewards summary">
+          <div class="panel-head">
+            <div class="panel-title">Your rewards</div>
+            <div class="panel-value">This month</div>
+          </div>
+          <div class="divider"></div>
+          <div class="reward">
+            <div class="reward-grid">
+              <div class="stat">
+                <div class="stat-label">Invites sent</div>
+                <div class="stat-value" id="invites">8</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">Credits</div>
+                <div class="stat-value" id="credits">$25</div>
+              </div>
+            </div>
+            <div class="hint">Credits apply automatically at checkout. (UI only — no backend wired.)</div>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button class="button" id="shareBtn" type="button" aria-label="Share referral link">
+            <span class="button-left">
+              <span class="button-icon">⤴</span>
+              <span>Share link</span>
+            </span>
+            <span class="button-arrow">→</span>
+          </button>
+
+          <button class="button ghost" id="copyBtn" type="button" aria-label="Copy referral link">
+            <span class="button-left">
+              <span class="button-icon">⎘</span>
+              <span>Copy</span>
+            </span>
+            <span class="button-arrow">→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Copied</div>
+
+  <script>
+    (function () {
+      const toast = document.getElementById("toast");
+      const refLink = document.getElementById("refLink");
+      const shareBtn = document.getElementById("shareBtn");
+      const copyBtn = document.getElementById("copyBtn");
+
+      const showToast = (msg) => {
+        toast.textContent = msg;
+        toast.classList.add("is-on");
+        window.clearTimeout(showToast._t);
+        showToast._t = window.setTimeout(() => toast.classList.remove("is-on"), 1400);
+      };
+
+      const attachPressFX = (el) => {
+        const setXY = (e) => {
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX ?? (e.touches && e.touches[0] && e.touches[0].clientX) ?? (r.left + r.width / 2)) - r.left;
+          const y = (e.clientY ?? (e.touches && e.touches[0] && e.touches[0].clientY) ?? (r.top + r.height / 2)) - r.top;
+          el.style.setProperty("--x", x + "px");
+          el.style.setProperty("--y", y + "px");
+        };
+        el.addEventListener("pointerdown", (e) => { setXY(e); el.classList.add("is-pressed"); }, { passive: true });
+        el.addEventListener("pointermove", (e) => { if (el.classList.contains("is-pressed")) setXY(e); }, { passive: true });
+        const up = () => el.classList.remove("is-pressed");
+        el.addEventListener("pointerup", up, { passive: true });
+        el.addEventListener("pointercancel", up, { passive: true });
+        el.addEventListener("blur", up, { passive: true });
+      };
+
+      attachPressFX(shareBtn);
+      attachPressFX(copyBtn);
+
+      copyBtn.addEventListener("click", async () => {
+        const text = refLink.value.trim();
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast("Copied");
+        } catch {
+          refLink.focus();
+          refLink.select();
+          showToast("Select + copy");
+        }
+      });
+
+      shareBtn.addEventListener("click", async () => {
+        const url = refLink.value.trim();
+        const payload = { title: "CUSP", text: "Try CUSP — quick reviews in seconds.", url };
+
+        try {
+          if (navigator.share) {
+            await navigator.share(payload);
+            return;
+          }
+        } catch {
+          // user canceled or share failed; fall through to copy
+        }
+
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast("Link copied");
+        } catch {
+          refLink.focus();
+          refLink.select();
+          showToast("Select + copy");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

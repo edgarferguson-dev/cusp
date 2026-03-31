@@ -1,0 +1,631 @@
+\<\!DOCTYPE html\>  
+\<html lang="en"\>  
+\<head\>  
+  \<meta charset="UTF-8" /\>  
+  \<meta  
+    name="viewport"  
+    content="width=device-width, initial-scale=1, viewport-fit=cover"  
+  /\>  
+  \<title\>CUSP | Instant Reviews\</title\>
+  \<meta name="theme-color" content="\#070A12" /\>
+
+  \<link rel="preconnect" href="https://fonts.googleapis.com" /\>  
+  \<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /\>  
+  \<link  
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800\&display=swap"  
+    rel="stylesheet"  
+  /\>
+
+  \<style\>  
+    :root {  
+      color-scheme: dark;
+      \--bg-0: \#05060b;
+      \--bg-1: \#060812;  
+      \--bg-2: \#0a0f21;  
+      \--text: rgba(255, 255, 255, 0.94);  
+      \--muted: rgba(255, 255, 255, 0.70);  
+      \--soft: rgba(255, 255, 255, 0.52);  
+      \--hairline: rgba(255, 255, 255, 0.10);
+      \--glass: rgba(255, 255, 255, 0.075);  
+      \--glass-2: rgba(255, 255, 255, 0.045);
+      \--accent-1: \#9AF8CD;  
+      \--accent-2: \#66E7FF;  
+      \--accent-3: \#BBA8FF;  
+      \--ink: \#05141b;  
+      \--shadow: 0 26px 90px rgba(0, 0, 0, 0.52);
+      \--shadow-soft: 0 14px 44px rgba(0, 0, 0, 0.32);
+      \--radius-xl: 36px;  
+      \--radius-lg: 24px;  
+      \--radius-md: 16px;
+      \--ease-out: cubic-bezier(.16, 1, .3, 1);
+      \--ease-spring: cubic-bezier(.2, .9, .2, 1.1);
+    }
+
+    \* {  
+      box-sizing: border-box;  
+      \-webkit-tap-highlight-color: transparent;  
+    }
+
+    html, body {  
+      margin: 0;  
+      min-height: 100%;  
+      font-family: ui-sans-serif, system-ui, \-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", "Inter", sans-serif;
+      color: var(--text);  
+      background:  
+        radial-gradient(circle at 12% 16%, rgba(102, 231, 255, 0.18), transparent 28%),  
+        radial-gradient(circle at 88% 14%, rgba(187, 168, 255, 0.16), transparent 26%),  
+        radial-gradient(circle at 50% 110%, rgba(154, 248, 205, 0.12), transparent 30%),  
+        linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 52%, var(--bg-0) 100%);  
+    }
+
+    body {  
+      padding: calc(18px + env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom));
+      overflow-x: hidden;
+    }
+
+    .ambient {  
+      position: fixed;  
+      inset: 0;  
+      pointer-events: none;  
+      opacity: 0.95;  
+      filter: blur(40px);  
+    }
+
+    .ambient::before,  
+    .ambient::after {  
+      content: "";  
+      position: absolute;  
+      border-radius: 999px;  
+    }
+
+    .ambient::before {  
+      width: 280px;  
+      height: 280px;  
+      top: 8%;  
+      left: \-40px;  
+      background: rgba(98, 232, 255, 0.16);  
+      animation: driftOne 12s ease-in-out infinite alternate;  
+    }
+
+    .ambient::after {  
+      width: 260px;  
+      height: 260px;  
+      right: \-30px;  
+      bottom: 10%;  
+      background: rgba(183, 166, 255, 0.14);  
+      animation: driftTwo 14s ease-in-out infinite alternate;  
+    }
+
+    .grain {
+      position: fixed;
+      inset: -40%;
+      pointer-events: none;
+      opacity: 0.10;
+      mix-blend-mode: overlay;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+      transform: rotate(8deg);
+      animation: grain 10s steps(10) infinite;
+    }
+
+    .shell {  
+      position: relative;  
+      width: 100%;  
+      max-width: 430px;  
+      z-index: 1;  
+      margin: 0 auto;
+    }
+
+    .frame {  
+      position: relative;  
+      border-radius: 44px;  
+      padding: 1px;  
+      background:  
+        linear-gradient(  
+          160deg,  
+          rgba(255, 255, 255, 0.24),  
+          rgba(255, 255, 255, 0.08),  
+          rgba(255, 255, 255, 0.02)  
+        );  
+      box-shadow: var(--shadow);  
+    }
+
+    .card {  
+      position: relative;  
+      border-radius: 43px;  
+      overflow: hidden;  
+      background:  
+        linear-gradient(  
+          180deg,  
+          rgba(255, 255, 255, 0.11),  
+          rgba(255, 255, 255, 0.045)  
+        );  
+      backdrop-filter: blur(26px) saturate(160%);  
+      \-webkit-backdrop-filter: blur(26px) saturate(160%);  
+      border: 1px solid rgba(255, 255, 255, 0.065);  
+      padding: 26px 22px 18px;  
+      box-shadow: var(--shadow-soft);
+      transform: translateY(10px);
+      opacity: 0;
+      animation: riseIn 620ms var(--ease-out) 80ms forwards;
+    }
+
+    .topbar {  
+      display: flex;  
+      align-items: center;  
+      justify-content: space-between;  
+      margin-bottom: 26px;  
+    }
+
+    .logo-wrap {  
+      display: flex;  
+      align-items: center;  
+      gap: 12px;  
+    }
+
+    .logo-mark {  
+      width: 40px;  
+      height: 40px;  
+      border-radius: 14px;  
+      position: relative;  
+      background:  
+        linear-gradient(135deg, rgba(141, 247, 200, 0.95), rgba(98, 232, 255, 0.92));  
+      box-shadow:  
+        inset 0 1px 0 rgba(255, 255, 255, 0.45),  
+        0 10px 30px rgba(98, 232, 255, 0.20);  
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .logo-mark::before {  
+      content: "";  
+      position: absolute;  
+      inset: 8px;  
+      border-radius: 10px;  
+      border: 1.5px solid rgba(4, 19, 26, 0.28);  
+    }
+
+    .logo-mark svg {
+      width: 28px;
+      height: 28px;
+      position: relative;
+      filter: drop-shadow(0 10px 20px rgba(4, 19, 26, 0.18));
+    }
+
+    .brand {  
+      line-height: 1.05;  
+    }
+
+    .brand-title {  
+      font-size: 0.86rem;  
+      font-weight: 800;  
+      letter-spacing: 0.22em;  
+      color: rgba(255, 255, 255, 0.95);  
+    }
+
+    .brand-sub {  
+      margin-top: 4px;  
+      font-size: 0.72rem;  
+      color: var(--soft);  
+      letter-spacing: 0.08em;  
+      text-transform: uppercase;  
+    }
+
+    .badge {  
+      padding: 10px 12px;  
+      border-radius: 999px;  
+      font-size: 0.72rem;  
+      font-weight: 600;  
+      color: rgba(255, 255, 255, 0.82);  
+      background: rgba(255, 255, 255, 0.06);  
+      border: 1px solid rgba(255, 255, 255, 0.08);  
+      backdrop-filter: blur(12px);  
+    }
+
+    .badge a {
+      color: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge a:active { transform: scale(0.98); }
+
+    .hero {  
+      padding: 12px 2px 6px;  
+      text-align: left;  
+    }
+
+    .status-ring {  
+      width: 78px;  
+      height: 78px;  
+      margin-bottom: 22px;  
+      border-radius: 24px;  
+      display: grid;  
+      place-items: center;  
+      background:  
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));  
+      border: 1px solid rgba(255, 255, 255, 0.10);  
+      box-shadow:  
+        inset 0 1px 0 rgba(255, 255, 255, 0.14),  
+        0 18px 40px rgba(0, 0, 0, 0.24);  
+      transform: translateY(6px);
+      opacity: 0;
+      animation: popIn 520ms var(--ease-spring) 220ms forwards;
+    }
+
+    .status-core {  
+      width: 56px;  
+      height: 56px;  
+      border-radius: 18px;  
+      display: grid;  
+      place-items: center;  
+      font-size: 1.4rem;  
+      font-weight: 700;  
+      color: \#04131a;  
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));  
+      box-shadow: 0 8px 24px rgba(98, 232, 255, 0.26);  
+    }
+
+    h1 {  
+      margin: 0 0 12px;  
+      font-size: clamp(2.05rem, 7vw, 2.65rem);  
+      line-height: 1.02;  
+      letter-spacing: \-0.045em;  
+      font-weight: 800;  
+    }
+
+    .headline-glow {  
+      display: block;  
+      background: linear-gradient(  
+        135deg,  
+        rgba(255,255,255,0.96),  
+        rgba(190, 249, 229, 0.98),  
+        rgba(192, 244, 255, 0.98)  
+      );  
+      \-webkit-background-clip: text;  
+      background-clip: text;  
+      color: transparent;  
+    }
+
+    .description {  
+      margin: 0 0 14px;  
+      font-size: 1rem;  
+      line-height: 1.6;  
+      color: var(--muted);  
+      max-width: 34ch;  
+    }
+
+    .micro {  
+      display: inline-flex;  
+      align-items: center;  
+      gap: 8px;  
+      margin: 0 0 28px;  
+      padding: 10px 14px;  
+      border-radius: 999px;  
+      background: rgba(255, 255, 255, 0.05);  
+      border: 1px solid rgba(255, 255, 255, 0.08);  
+      color: rgba(255, 255, 255, 0.78);  
+      font-size: 0.85rem;  
+      font-weight: 500;  
+    }
+
+    .dot {  
+      width: 8px;  
+      height: 8px;  
+      border-radius: 999px;  
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));  
+      box-shadow: 0 0 18px rgba(98, 232, 255, 0.72);  
+    }
+
+    .cta {  
+      display: flex;  
+      flex-direction: column;  
+      gap: 14px;  
+      margin-top: 6px;  
+    }
+
+    .button {  
+      position: relative;  
+      display: flex;  
+      align-items: center;  
+      justify-content: space-between;  
+      gap: 16px;  
+      width: 100%;  
+      text-decoration: none;  
+      color: var(--ink);  
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));  
+      border-radius: 20px;  
+      padding: 18px 20px;  
+      font-size: 1rem;  
+      font-weight: 800;  
+      letter-spacing: \-0.02em;  
+      box-shadow:  
+        0 18px 38px rgba(98, 232, 255, 0.22),  
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);  
+      transition:  
+        transform 220ms var(--ease-out),  
+        box-shadow 220ms var(--ease-out),  
+        filter 220ms var(--ease-out);  
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .button:hover {  
+        transform: translateY(-2px) scale(1.01);  
+        box-shadow:  
+          0 22px 44px rgba(98, 232, 255, 0.26),  
+          inset 0 1px 0 rgba(255, 255, 255, 0.50);  
+        filter: saturate(1.05);  
+      }
+    }
+
+    .button:active {  
+      transform: translateY(0) scale(0.986);  
+    }
+
+    .button.is-pressed {
+      transform: translateY(0) scale(0.986);
+      filter: saturate(1.03);
+    }
+
+    .button::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      pointer-events: none;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.32), transparent 42%);
+      opacity: 0;
+      transition: opacity 260ms var(--ease-out);
+    }
+
+    .button.is-pressed::after { opacity: 1; }
+
+    .button-left {  
+      display: flex;  
+      align-items: center;  
+      gap: 12px;  
+    }
+
+    .button-icon {  
+      width: 34px;  
+      height: 34px;  
+      border-radius: 12px;  
+      display: grid;  
+      place-items: center;  
+      background: rgba(4, 19, 26, 0.10);  
+      font-size: 1rem;  
+    }
+
+    .button-arrow {  
+      font-size: 1.15rem;  
+      opacity: 0.72;  
+      transform: translateX(0);  
+      transition: transform 180ms ease;  
+    }
+
+    .button:hover .button-arrow {  
+      transform: translateX(3px);  
+    }
+
+    .meta {  
+      display: grid;  
+      grid-template-columns: 1fr 1fr;  
+      gap: 12px;  
+    }
+
+    .meta-card {  
+      padding: 14px 14px 15px;  
+      border-radius: 18px;  
+      background: rgba(255, 255, 255, 0.045);  
+      border: 1px solid rgba(255, 255, 255, 0.07);  
+    }
+
+    .meta-label {  
+      font-size: 0.72rem;  
+      text-transform: uppercase;  
+      letter-spacing: 0.08em;  
+      color: var(--soft);  
+      margin-bottom: 6px;  
+    }
+
+    .meta-value {  
+      font-size: 0.96rem;  
+      font-weight: 700;  
+      color: rgba(255, 255, 255, 0.9);  
+      letter-spacing: \-0.02em;  
+    }
+
+    .footer {  
+      margin-top: 20px;  
+      padding-top: 16px;  
+      display: flex;  
+      justify-content: space-between;  
+      align-items: center;  
+      gap: 12px;  
+      color: var(--soft);  
+      font-size: 0.78rem;  
+      border-top: 1px solid rgba(255, 255, 255, 0.08);  
+    }
+
+    .footer strong {  
+      color: rgba(255, 255, 255, 0.88);  
+      font-weight: 600;  
+    }
+
+    @keyframes driftOne {  
+      from { transform: translate3d(0, 0, 0\) scale(1); }  
+      to { transform: translate3d(28px, 18px, 0\) scale(1.08); }  
+    }
+
+    @keyframes driftTwo {  
+      from { transform: translate3d(0, 0, 0\) scale(1); }  
+      to { transform: translate3d(-20px, \-24px, 0\) scale(1.06); }  
+    }
+
+    @keyframes riseIn {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes popIn {
+      0% { transform: translateY(10px) scale(0.98); opacity: 0; }
+      65% { opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes grain {
+      0% { transform: translate3d(-4%, -6%, 0) rotate(8deg); }
+      100% { transform: translate3d(6%, 8%, 0) rotate(8deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ambient::before, .ambient::after, .grain { animation: none !important; }
+      .card, .status-ring { animation: none !important; transform: none !important; opacity: 1 !important; }
+      .button { transition: none !important; }
+    }
+
+    @media (max-width: 480px) {  
+      body {  
+        padding: calc(16px + env(safe-area-inset-top)) 16px calc(26px + env(safe-area-inset-bottom));
+      }
+
+      .card {  
+        padding: 22px 18px 16px;  
+      }
+
+      .topbar {  
+        margin-bottom: 20px;  
+      }
+
+      .badge {  
+        font-size: 0.66rem;  
+        padding: 8px 10px;  
+      }
+
+      .meta {  
+        grid-template-columns: 1fr;  
+      }
+
+      .footer {  
+        flex-direction: column;  
+        align-items: flex-start;  
+      }  
+    }  
+  \</style\>  
+\</head\>  
+\<body\>  
+  \<div class="ambient"\>\</div\>
+  \<div class="grain" aria-hidden="true"\>\</div\>
+
+  \<main class="shell"\>  
+    \<section class="frame"\>  
+      \<div class="card"\>  
+        \<div class="topbar"\>  
+          \<div class="logo-wrap"\>  
+            \<div class="logo-mark" aria-hidden="true"\>
+              \<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"\>
+                \<path d="M18.9 7.8c-1.2-2.6-3.8-4-6.9-4C7.6 3.8 4.3 7 4.3 12s3.3 8.2 7.7 8.2c2.7 0 4.8-1.1 6.2-3.1" stroke="rgba(4,19,26,0.82)" stroke-width="2.2" stroke-linecap="round"/\>
+                \<path d="M19.7 12h-7.2" stroke="rgba(4,19,26,0.82)" stroke-width="2.2" stroke-linecap="round"/\>
+              \</svg\>
+            \</div\>  
+            \<div class="brand"\>  
+              \<div class="brand-title"\>CUSP\</div\>  
+              \<div class="brand-sub"\>Instant Reviews\</div\>  
+            \</div\>  
+          \</div\>
+
+          \<div class="badge"\>
+            \<a href="./referral.html.md" aria-label="Open referrals and rewards"\>
+              Rewards \<span aria-hidden="true"\>→\</span\>
+            \</a\>
+          \</div\>  
+        \</div\>
+
+        \<div class="hero"\>  
+          \<div class="status-ring"\>  
+            \<div class="status-core"\>✓\</div\>  
+          \</div\>
+
+          \<h1\>  
+            Thanks for  
+            \<span class="headline-glow"\>choosing us.\</span\>  
+          \</h1\>
+
+          \<p class="description"\>  
+            If your experience felt great, a quick review helps us grow and helps  
+            future customers choose with confidence.  
+          \</p\>
+
+          \<div class="micro"\>  
+            \<span class="dot"\>\</span\>  
+            Less than 30 seconds. No app required.  
+          \</div\>
+
+          \<div class="cta"\>  
+            \<a  
+              class="button"  
+              href="YOUR_GOOGLE_REVIEW_LINK_HERE"  
+              target="\_blank"  
+              rel="noopener noreferrer"  
+              aria-label="Leave a Google review"  
+            \>  
+              \<span class="button-left"\>  
+                \<span class="button-icon"\>★\</span\>  
+                \<span\>Leave a Review\</span\>  
+              \</span\>  
+              \<span class="button-arrow"\>→\</span\>  
+            \</a\>
+
+            \<div class="meta"\>  
+              \<div class="meta-card"\>  
+                \<div class="meta-label"\>Experience\</div\>  
+                \<div class="meta-value"\>One tap flow\</div\>  
+              \</div\>  
+              \<div class="meta-card"\>  
+                \<div class="meta-label"\>Platform\</div\>  
+                \<div class="meta-value"\>Google Reviews\</div\>  
+              \</div\>  
+            \</div\>  
+          \</div\>  
+        \</div\>
+
+        \<div class="footer"\>  
+          \<span\>Built for trust, speed, and simplicity.\</span\>  
+          \<span\>\<strong\>CUSP\</strong\> customer link\</span\>  
+        \</div\>  
+      \</div\>  
+    \</section\>  
+  \</main\>  
+\n+  \<script\>
+    (function () {
+      const buttons = document.querySelectorAll(".button");
+      for (const btn of buttons) {
+        const setXY = (e) => {
+          const r = btn.getBoundingClientRect();
+          const x = (e.clientX ?? (e.touches && e.touches[0] && e.touches[0].clientX) ?? (r.left + r.width / 2)) - r.left;
+          const y = (e.clientY ?? (e.touches && e.touches[0] && e.touches[0].clientY) ?? (r.top + r.height / 2)) - r.top;
+          btn.style.setProperty("--x", x + "px");
+          btn.style.setProperty("--y", y + "px");
+        };
+
+        btn.addEventListener("pointerdown", (e) => {
+          setXY(e);
+          btn.classList.add("is-pressed");
+        }, { passive: true });
+
+        btn.addEventListener("pointermove", (e) => {
+          if (!btn.classList.contains("is-pressed")) return;
+          setXY(e);
+        }, { passive: true });
+
+        const release = () => btn.classList.remove("is-pressed");
+        btn.addEventListener("pointerup", release, { passive: true });
+        btn.addEventListener("pointercancel", release, { passive: true });
+        btn.addEventListener("blur", release, { passive: true });
+      }
+    })();
+  \</script\>
+\</body\>  
+\</html\>  
