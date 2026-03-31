@@ -142,14 +142,81 @@
     .brand-title { font-size: 0.86rem; font-weight: 800; letter-spacing: 0.22em; color: rgba(255, 255, 255, 0.95); }
     .brand-sub { margin-top: 4px; font-size: 0.72rem; color: var(--soft); letter-spacing: 0.08em; text-transform: uppercase; }
 
-    .badge {
-      padding: 10px 12px; border-radius: 999px; font-size: 0.72rem; font-weight: 600;
-      color: rgba(255, 255, 255, 0.82); background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px);
+    .tabs { display: inline-flex; align-items: center; gap: 8px; }
+
+    .tab {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 999px;
+      font-size: 0.78rem; font-weight: 750;
+      letter-spacing: -0.01em;
+      color: rgba(255, 255, 255, 0.84);
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      text-decoration: none;
+      white-space: nowrap;
     }
 
-    .badge a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
-    .badge a:active { transform: scale(0.98); }
+    .tab[aria-current="page"] {
+      color: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.075);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    }
+
+    .tab:active { transform: scale(0.98); }
+
+    .tab-icon {
+      width: 28px; height: 28px; border-radius: 12px;
+      display: grid; place-items: center;
+      background: rgba(0, 0, 0, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.95rem;
+    }
+
+    .mini {
+      margin-top: 10px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      overflow: hidden;
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .mini-label {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      color: rgba(255, 255, 255, 0.58);
+    }
+
+    .mini-input {
+      width: 100%;
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(0, 0, 0, 0.18);
+      color: rgba(255, 255, 255, 0.92);
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-size: 0.98rem;
+      letter-spacing: -0.01em;
+      outline: none;
+      transition: border-color 220ms var(--ease-out), box-shadow 220ms var(--ease-out), transform 220ms var(--ease-out);
+    }
+
+    .mini-input:focus {
+      border-color: rgba(102, 231, 255, 0.35);
+      box-shadow: 0 0 0 6px rgba(102, 231, 255, 0.10);
+      transform: translateY(-1px);
+    }
+
+    .mini-hint { font-size: 0.9rem; color: rgba(255, 255, 255, 0.62); line-height: 1.45; }
 
     .hero { padding: 12px 2px 6px; text-align: left; }
 
@@ -297,11 +364,16 @@
             </div>
           </div>
 
-          <div class="badge">
-            <a href="./referral.html" aria-label="Open referrals and rewards">
-              Rewards <span aria-hidden="true">→</span>
+          <nav class="tabs" aria-label="Primary">
+            <a class="tab" href="./index.html" aria-current="page">
+              <span class="tab-icon" aria-hidden="true">★</span>
+              Post a review
             </a>
-          </div>
+            <a class="tab" href="./referral.html">
+              <span class="tab-icon" aria-hidden="true">⤴</span>
+              Rewards
+            </a>
+          </nav>
         </div>
 
         <div class="hero">
@@ -325,13 +397,22 @@
           </div>
 
           <div class="cta">
-            <a class="button" href="YOUR_GOOGLE_REVIEW_LINK_HERE" target="_blank" rel="noopener noreferrer" aria-label="Leave a Google review">
+            <a class="button" id="reviewBtn" href="YOUR_GOOGLE_REVIEW_LINK_HERE" target="_blank" rel="noopener noreferrer" aria-label="Leave a Google review">
               <span class="button-left">
                 <span class="button-icon">★</span>
                 <span>Leave a Review</span>
               </span>
               <span class="button-arrow">→</span>
             </a>
+
+            <section class="mini" aria-label="Set your review link">
+              <div class="mini-row">
+                <div class="mini-label">Review link</div>
+                <input class="mini-input" id="reviewLink" inputmode="url" autocomplete="off" spellcheck="false"
+                  placeholder="Paste your Google review link…" />
+                <div class="mini-hint">Paste once — we’ll remember it on this device. (UI-only, no backend.)</div>
+              </div>
+            </section>
 
             <div class="meta">
               <div class="meta-card">
@@ -356,6 +437,10 @@
 
   <script>
     (function () {
+      const storageKey = "cusp.reviewLink";
+      const reviewBtn = document.getElementById("reviewBtn");
+      const reviewLink = document.getElementById("reviewLink");
+
       const buttons = document.querySelectorAll(".button");
       for (const btn of buttons) {
         const setXY = (e) => {
@@ -374,6 +459,29 @@
         btn.addEventListener("pointercancel", release, { passive: true });
         btn.addEventListener("blur", release, { passive: true });
       }
+
+      const normalize = (v) => (v || "").trim();
+
+      const setReviewHref = (url) => {
+        const u = normalize(url);
+        if (!u) return;
+        reviewBtn.setAttribute("href", u);
+      };
+
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          reviewLink.value = saved;
+          setReviewHref(saved);
+        }
+      } catch {}
+
+      reviewLink.addEventListener("change", () => {
+        const v = normalize(reviewLink.value);
+        if (!v) return;
+        setReviewHref(v);
+        try { localStorage.setItem(storageKey, v); } catch {}
+      });
     })();
   </script>
 </body>
