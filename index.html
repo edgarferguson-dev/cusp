@@ -218,6 +218,28 @@
 
     .mini-hint { font-size: 0.9rem; color: rgba(255, 255, 255, 0.62); line-height: 1.45; }
 
+    .mini-actions { display: flex; gap: 10px; align-items: center; }
+
+    .chip {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.86);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: transform 180ms var(--ease-out), background 180ms var(--ease-out), border-color 180ms var(--ease-out);
+    }
+
+    .chip:active { transform: scale(0.98); }
+    .chip.primary {
+      background: rgba(102, 231, 255, 0.14);
+      border-color: rgba(102, 231, 255, 0.22);
+    }
+
     .hero { padding: 12px 2px 6px; text-align: left; }
 
     .status-ring {
@@ -268,6 +290,8 @@
       position: relative;
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
       width: 100%;
+      pointer-events: auto;
+      z-index: 10;
       text-decoration: none;
       color: var(--ink);
       background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
@@ -397,7 +421,7 @@
           </div>
 
           <div class="cta">
-            <a class="button" id="reviewBtn" href="YOUR_GOOGLE_REVIEW_LINK_HERE" target="_blank" rel="noopener noreferrer" aria-label="Leave a Google review">
+            <a class="button" id="reviewBtn" href="https://www.pursuit.org/ai-native-program" target="_blank" rel="noopener noreferrer" aria-label="Leave a Google review">
               <span class="button-left">
                 <span class="button-icon">★</span>
                 <span>Leave a Review</span>
@@ -410,7 +434,11 @@
                 <div class="mini-label">Review link</div>
                 <input class="mini-input" id="reviewLink" inputmode="url" autocomplete="off" spellcheck="false"
                   placeholder="Paste your Google review link…" />
-                <div class="mini-hint">Paste once — we’ll remember it on this device. (UI-only, no backend.)</div>
+                <div class="mini-actions" aria-label="Review link actions">
+                  <button class="chip primary" id="useTestLink" type="button">Use Pursuit link</button>
+                  <button class="chip" id="clearLink" type="button">Clear</button>
+                </div>
+                <div class="mini-hint">Default link opens <strong>Pursuit</strong> at <a href="https://www.pursuit.org/ai-native-program" target="_blank" rel="noopener noreferrer">pursuit.org</a>. If you have a direct Google review URL (often <code>g.page/.../review</code>), paste it here to make the button a one-tap review.</div>
               </div>
             </section>
 
@@ -440,6 +468,9 @@
       const storageKey = "cusp.reviewLink";
       const reviewBtn = document.getElementById("reviewBtn");
       const reviewLink = document.getElementById("reviewLink");
+      const useTestLink = document.getElementById("useTestLink");
+      const clearLink = document.getElementById("clearLink");
+      const TEST_HREF = "https://www.pursuit.org/ai-native-program";
 
       const buttons = document.querySelectorAll(".button");
       for (const btn of buttons) {
@@ -462,8 +493,16 @@
 
       const normalize = (v) => (v || "").trim();
 
+      const toAbsoluteUrl = (raw) => {
+        const v = normalize(raw);
+        if (!v) return "";
+        if (/^https?:\/\//i.test(v)) return v;
+        if (/^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(v)) return "https://" + v;
+        return v;
+      };
+
       const setReviewHref = (url) => {
-        const u = normalize(url);
+        const u = toAbsoluteUrl(url);
         if (!u) return;
         reviewBtn.setAttribute("href", u);
       };
@@ -476,11 +515,26 @@
         }
       } catch {}
 
-      reviewLink.addEventListener("change", () => {
-        const v = normalize(reviewLink.value);
-        if (!v) return;
-        setReviewHref(v);
-        try { localStorage.setItem(storageKey, v); } catch {}
+      const persist = (v) => {
+        const val = normalize(v);
+        if (!val) return;
+        setReviewHref(val);
+        try { localStorage.setItem(storageKey, val); } catch {}
+      };
+
+      // Use input (not just change) so paste works immediately on iPhone.
+      reviewLink.addEventListener("input", () => persist(reviewLink.value), { passive: true });
+      reviewLink.addEventListener("paste", () => setTimeout(() => persist(reviewLink.value), 0), { passive: true });
+
+      useTestLink.addEventListener("click", () => {
+        reviewLink.value = TEST_HREF;
+        persist(TEST_HREF);
+      });
+
+      clearLink.addEventListener("click", () => {
+        reviewLink.value = "";
+        reviewBtn.setAttribute("href", TEST_HREF);
+        try { localStorage.removeItem(storageKey); } catch {}
       });
     })();
   </script>
